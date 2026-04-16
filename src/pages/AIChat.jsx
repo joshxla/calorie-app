@@ -78,7 +78,7 @@ export default function AIChat() {
       }
 
       const data    = await res.json()
-      const rawText = data?.content?.[0]?.text || 'Sorry, I couldn\'t get a response.'
+      const rawText = data?.choices?.[0]?.message?.content || 'Sorry, I couldn\'t get a response.'
       const logData = parseLogBlock(rawText)
       const cleanText = stripLogBlock(rawText)
 
