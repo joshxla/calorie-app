@@ -61,8 +61,8 @@ export default function AIChat() {
     setMessages(prev => [...prev, userMsg])
     setLoading(true)
 
-    // Build messages array for API (exclude logData field, map text→content)
-    const apiMessages = [...messages, userMsg]
+    const chatHistory = messages.slice(1)
+    const apiMessages = [...chatHistory, userMsg]
       .map(m => ({ role: m.role, content: m.text }))
 
     try {
