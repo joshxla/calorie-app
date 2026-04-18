@@ -1,6 +1,6 @@
 // Date helpers
 export const toISODate = (d = new Date()) =>
-  d.toISOString().split('T')[0]
+  d.toLocaleDateString('sv-SE')
 
 export const today = () => toISODate()
 
