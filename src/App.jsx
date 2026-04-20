@@ -8,11 +8,14 @@ import useStore  from './store/useStore'
 import './styles/global.css'
 
 export default function App() {
-  const [tab, setTab]   = useState('today')
-  const { initialize }  = useStore()
+  const [tab, setTab] = useState('today')
+  const { syncDay }   = useStore()
 
-  // Seed historical data on first launch
-  useEffect(() => { initialize() }, [])
+  // Sync today's food log from the API on app load
+  useEffect(() => {
+    const today = new Date().toLocaleDateString('sv-SE')
+    syncDay(today)
+  }, [])
 
   return (
     <div className="app">

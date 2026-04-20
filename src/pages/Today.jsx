@@ -1,15 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import CalorieRing from '../components/CalorieRing'
 import QuickAddSheet from '../components/QuickAddSheet'
 import useStore from '../store/useStore'
 import { today, formatDate, greet, pct } from '../lib/utils'
 
 export default function Today() {
-  const { getTodayLog, upsertLog, removeFoodEntry, goals } = useStore()
+  const { getTodayLog, upsertLog, removeFoodEntry, syncDay, goals } = useStore()
   const log = getTodayLog()
   const [showAdd,    setShowAdd]    = useState(false)
   const [editWeight, setEditWeight] = useState(false)
   const [weightVal,  setWeightVal]  = useState('')
+
+  // Refresh food entries from API when this view is shown
+  useEffect(() => {
+    syncDay(today())
+  }, [])
 
   const calories    = log?.calories    || 0
   const protein     = log?.protein     || 0
