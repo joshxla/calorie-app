@@ -96,11 +96,21 @@ export default function AIChat() {
     }
   }
 
-  const logEntry = (logData, msgIndex) => {
-    addFoodEntry(today(), logData)
+  const logEntry = async (logData, msgIndex) => {
+    // Mark as logging (pending state)
     setMessages(prev => prev.map((m, i) =>
-      i === msgIndex ? { ...m, logged: true } : m
+      i === msgIndex ? { ...m, logging: true } : m
     ))
+    try {
+      await addFoodEntry(today(), logData)
+      setMessages(prev => prev.map((m, i) =>
+        i === msgIndex ? { ...m, logged: true, logging: false } : m
+      ))
+    } catch (err) {
+      setMessages(prev => prev.map((m, i) =>
+        i === msgIndex ? { ...m, logError: true, logging: false } : m
+      ))
+    }
   }
 
   return (
@@ -149,10 +159,16 @@ export default function AIChat() {
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>
                     {msg.logData.calories} cal · {msg.logData.protein}g protein
                   </div>
+                  {msg.logError && (
+                    <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 4 }}>
+                      ⚠️ Failed to save — tap to retry
+                    </div>
+                  )}
                 </div>
                 <button className="btn btn-primary" style={{ padding: '7px 14px', fontSize: 13 }}
-                  onClick={() => logEntry(msg.logData, i)}>
-                  Log it
+                  onClick={() => logEntry(msg.logData, i)}
+                  disabled={msg.logging}>
+                  {msg.logging ? '…' : msg.logError ? 'Retry' : 'Log it'}
                 </button>
               </div>
             )}
