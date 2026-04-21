@@ -1,20 +1,14 @@
-// Hetzner food-log API client
-const BASE_URL = import.meta.env.VITE_FOOD_API_URL || 'http://62.238.2.195:3001'
-const API_KEY  = import.meta.env.VITE_FOOD_API_KEY || ''
-
-const authHeaders = {
-  'Content-Type': 'application/json',
-  'x-api-key': API_KEY,
-}
+// Food-log API client — hits the Netlify proxy (server-side) so auth stays
+// off the client and we avoid mixed-content blocking on the HTTP origin.
+const BASE_URL = '/.netlify/functions/food-proxy'
+const jsonHeaders = { 'Content-Type': 'application/json' }
 
 /**
  * Fetch all food entries + totals for a given date.
  * Returns: { date, logs: [{ id, name, calories, protein, timestamp }], totals: { calories, protein } }
  */
 export async function fetchDay(date) {
-  const res = await fetch(`${BASE_URL}/api/log-food?date=${date}`, {
-    headers: authHeaders,
-  })
+  const res = await fetch(`${BASE_URL}?date=${encodeURIComponent(date)}`)
   if (!res.ok) throw new Error(`fetchDay failed: ${res.status}`)
   return res.json()
 }
@@ -25,9 +19,9 @@ export async function fetchDay(date) {
  * Returns: { success, entry, totals, message }
  */
 export async function addEntry(entry) {
-  const res = await fetch(`${BASE_URL}/api/log-food`, {
+  const res = await fetch(BASE_URL, {
     method: 'POST',
-    headers: authHeaders,
+    headers: jsonHeaders,
     body: JSON.stringify(entry),
   })
   if (!res.ok) throw new Error(`addEntry failed: ${res.status}`)
@@ -39,9 +33,8 @@ export async function addEntry(entry) {
  * Returns: { success, deleted }
  */
 export async function clearDay(date) {
-  const res = await fetch(`${BASE_URL}/api/log-food?date=${date}`, {
+  const res = await fetch(`${BASE_URL}?date=${encodeURIComponent(date)}`, {
     method: 'DELETE',
-    headers: authHeaders,
   })
   if (!res.ok) throw new Error(`clearDay failed: ${res.status}`)
   return res.json()
